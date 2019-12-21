@@ -574,7 +574,7 @@ public class TranslationTask extends AsyncTask {
         return false;
     }
 
-    private boolean isOnGround(HashHitBox hitBox){ //The problem is here
+    private boolean isOnGround(HashHitBox hitBox){
         MutableHitBox bottomLocs = new HashHitBox();
         MutableHitBox translatedBottomLocs = new HashHitBox();
         for (MovecraftLocation location : hitBox){
@@ -609,7 +609,7 @@ public class TranslationTask extends AsyncTask {
         boolean translatedBottomLocsInAir = true;
         for (MovecraftLocation translatedBottomLoc : translatedBottomLocs){
             Material testType = translatedBottomLoc.toBukkit(craft.getW()).getBlock().getType();
-            if (bottomLocs.contains(beneath) || testType == Material.AIR || craft.getType().getPassthroughBlocks().contains(testType)){
+            if (bottomLocs.contains(translatedBottomLoc) || testType == Material.AIR || craft.getType().getPassthroughBlocks().contains(testType)){
                 continue;
             }
             translatedBottomLocsInAir = false;
