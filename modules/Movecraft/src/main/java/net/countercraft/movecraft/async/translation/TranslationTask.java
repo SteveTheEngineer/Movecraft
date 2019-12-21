@@ -152,6 +152,9 @@ public class TranslationTask extends AsyncTask {
                     testSurface = testSurface.translate(0, -1, 0);
                 }
                 int distance = bottomPoint.getY() - testSurface.getY();
+                Bukkit.broadcastMessage("distance: " + distance);
+                Bukkit.broadcastMessage("bottomY: " + bottomPoint.getY());
+                Bukkit.broadcastMessage("testsurfaceY: " + testSurface.getY());
                 if (distance > craft.getType().getHoverLimit()){
                     dy = -1;
                 }
@@ -159,11 +162,11 @@ public class TranslationTask extends AsyncTask {
 
                 dy = -1;
             }
+            fail(I18nSupport.getInternationalisedString("Translation - Failed Craft hit height limit"));
+            return;
         }
         //Fail the movement if the craft is too high
         if (dy>0 && maxY + dy > craft.getType().getMaxHeightLimit()) {
-            fail(I18nSupport.getInternationalisedString("Translation - Failed Craft hit height limit"));
-            return;
         } else if (minY + dy < craft.getType().getMinHeightLimit() && dy < 0 && !craft.getSinking()) {
             fail(I18nSupport.getInternationalisedString("Translation - Failed Craft hit minimum height limit"));
             return;
