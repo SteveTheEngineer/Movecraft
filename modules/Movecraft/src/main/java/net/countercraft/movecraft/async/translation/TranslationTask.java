@@ -232,13 +232,14 @@ public class TranslationTask extends AsyncTask {
                 int centreMinY = oldHitBox.getLocalMinY(midPoint.getX(), midPoint.getZ());
                 int groundY = centreMinY;
                 World w = craft.getW();
-                while (w.getBlockAt(midPoint.getX(), groundY - 1, midPoint.getZ()).getType() == Material.AIR || craft.getType().getPassthroughBlocks().contains(w.getBlockAt(midPoint.getX(), groundY -1, midPoint.getZ()).getType())){
+                while (w.getBlockAt(midPoint.getX(), groundY - 1, midPoint.getZ()).getType() == Material.AIR || craft.getType().getPassthroughBlocks().contains(w.getBlockAt(midPoint.getX(), groundY - 1, midPoint.getZ()).getType())){
                     groundY--;
+                    Bukkit.broadcastMessage("groundY--: " + groundY);
                 }
                 Bukkit.broadcastMessage("groundY: " + groundY);
                 Bukkit.broadcastMessage("centreMinY: " + centreMinY);
                 Bukkit.broadcastMessage("craft.getType().getHoverLimit(): " + craft.getType().getHoverLimit());
-                if (centreMinY - groundY - 1 > craft.getType().getHoverLimit()){
+                if (centreMinY - groundY > craft.getType().getHoverLimit()){
                     dy = -1;
                 }
             } else if (!isOnGround(oldHitBox)){
