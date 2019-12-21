@@ -21,7 +21,10 @@ import net.countercraft.movecraft.config.Settings;
 import net.countercraft.movecraft.craft.Craft;
 import net.countercraft.movecraft.utils.HitBox;
 import net.countercraft.movecraft.utils.TeleportUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -100,15 +103,23 @@ public class EntityTranslateUpdateCommand extends UpdateCommand {
         final Location midpoint = oldHitBox.getMidPoint().toBukkit(craft.getW());
         final Collection<Entity> entities = craft.getW().getNearbyEntities(midpoint, oldHitBox.getXLength() / 2.0 + 1, oldHitBox.getYLength() / 2.0 + 2, oldHitBox.getZLength() / 2.0 + 1);
         final Set<Entity> toMove = new HashSet<>();
-        for (Entity entity : entities){
-            if (entity.getType() == EntityType.PLAYER) {
+        for (Entity entity : entities) {
+            /*if (entity.getType() == EntityType.PLAYER) {
                 if(craft.getSinking()){
                     continue;
                 }
                 toMove.add(entity);
             } else if (!craft.getType().getOnlyMovePlayers() || entity.getType() == EntityType.PRIMED_TNT) {
                 toMove.add(entity);
+            }*/
+            if(craft.getType().getOnlyMovePlayers() && entity.getType() != EntityType.PLAYER && entity.getType() != EntityType.PRIMED_TNT) {
+                continue;
             }
+            Location entityLocation = entity.getLocation();
+            if(craft.getType().getOnlyMoveEntitiesOnBlocks() && (entityLocation.getBlock().getRelative(BlockFace.DOWN).getType() == Material.AIR || !oldHitBox.contains(entityLocation.getBlockX(), entityLocation.getBlockY() - 1, entityLocation.getBlockZ()))) { // EXPERIMENTAL
+                continue;
+            }
+            toMove.add(entity);
         }
         return toMove;
     }

@@ -47,6 +47,9 @@ final public class CraftType {
     private final boolean canHoverOverWater;
     private final boolean moveEntities;
     private final boolean onlyMovePlayers;
+    private final boolean onlyMoveEntitiesOnBlocks;
+    private final boolean damageEntitiesAtHead;
+    private final boolean damageEntitiesAtLegs;
     private final boolean allowHorizontalMovement;
     private final boolean allowVerticalMovement;
     private final boolean allowRemoteSign;
@@ -86,6 +89,9 @@ final public class CraftType {
     private final double chestPenalty;
     private final float explodeOnCrash;
     private final float collisionExplosion;
+    private final float massMultiplier;
+    private final float harvesterBladeDamage;
+    private final int effectRange;
     @NotNull private final String craftName;
     @NotNull private final BlockContainer allowedBlocks;
     @NotNull private final BlockContainer forbiddenBlocks;
@@ -95,7 +101,6 @@ final public class CraftType {
     @NotNull private final List<Material> harvestBlocks;
     @NotNull private final List<Material> harvesterBladeBlocks;
     @NotNull private final Set<Material> passthroughBlocks;
-    @NotNull private final int effectRange;
     @NotNull private final Map<PotionEffect,Integer> potionEffectsToApply;
     @NotNull private final Map<PotionEffect, Integer> potionEffectDelays = Collections.emptyMap();
     @NotNull private final Set<Material> forbiddenHoverOverBlocks;
@@ -172,8 +177,13 @@ final public class CraftType {
         canHoverOverWater = (boolean) data.getOrDefault("canHoverOverWater", true);
         moveEntities = (boolean) data.getOrDefault("moveEntities", true);
         onlyMovePlayers = (boolean) data.getOrDefault("onlyMovePlayers", true);
+            damageEntitiesAtHead = (boolean) data.getOrDefault("damageEntitiesAtHead", false);
+            damageEntitiesAtLegs = (boolean) data.getOrDefault("damageEntitiesAtLegs", true);
+        onlyMoveEntitiesOnBlocks = (boolean) data.getOrDefault("onlyMoveEntitiesOnBlocks", false);
         useGravity = (boolean) data.getOrDefault("useGravity", false);
         hoverLimit = Math.max(0, integerFromObject(data.getOrDefault("hoverLimit", 0)));
+        massMultiplier = Math.max(0, floatFromObject(data.getOrDefault("massMuliplier", 1)));
+        harvesterBladeDamage = Math.max(0, floatFromObject(data.getOrDefault("harvesterBladeDamage", 0)));
         harvestBlocks = new ArrayList<>();
         harvesterBladeBlocks = new ArrayList<>();
         if (data.containsKey("harvestBlocks")) {
@@ -987,6 +997,26 @@ final public class CraftType {
 
     public int getMaxTravelDistance() {
         return maxTravelDistance;
+    }
+
+    public boolean getOnlyMoveEntitiesOnBlocks() {
+        return onlyMoveEntitiesOnBlocks;
+    }
+
+    public boolean getDamageEntitiesAtHead() {
+        return damageEntitiesAtHead;
+    }
+
+    public boolean getDamageEntitiesAtLegs() {
+        return damageEntitiesAtLegs;
+    }
+
+    public float getMassMultiplier() {
+        return massMultiplier;
+    }
+
+    public float getHarvesterBladeDamage() {
+        return harvesterBladeDamage;
     }
 
     public Set<Material> getForbiddenHoverOverBlocks() {
