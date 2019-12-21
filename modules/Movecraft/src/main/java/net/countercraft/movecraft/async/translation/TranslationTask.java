@@ -227,7 +227,7 @@ public class TranslationTask extends AsyncTask {
         if (craft.getType().getUseGravity() && !craft.getSinking()){
             if (inclineCraft(oldHitBox)){
                 dy = 1;
-            } else if (!isOnGround(oldHitBox) && craft.getType().getCanHover()){
+            } else if (!isOnGround(oldHitBox) && craft.getType().getCanHover()){/*
                 MovecraftLocation midPoint = oldHitBox.getMidPoint();
                 int centreMinY = oldHitBox.getLocalMinY(midPoint.getX(), midPoint.getZ());
                 int groundY = centreMinY;
@@ -242,7 +242,7 @@ public class TranslationTask extends AsyncTask {
                 Bukkit.broadcastMessage("D craft.getType().getHoverLimit(): " + craft.getType().getHoverLimit());
                 if (centreMinY - groundY > craft.getType().getHoverLimit()){
                     dy = -1;
-                }
+                }*/
             } else if (!isOnGround(oldHitBox)){
                 dy = -1;
             }
