@@ -562,6 +562,7 @@ public class TranslationTask extends AsyncTask {
 
     private boolean inclineCraft(HashHitBox hitBox){
         if (isOnGround(hitBox) && dy < 0){
+            Bukkit.broadcastMessage("dy = 0");
             dy = 0;
         }
         HashHitBox collisionBox = new HashHitBox();
