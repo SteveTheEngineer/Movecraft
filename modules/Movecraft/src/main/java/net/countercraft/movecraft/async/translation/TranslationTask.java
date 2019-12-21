@@ -152,9 +152,6 @@ public class TranslationTask extends AsyncTask {
                     testSurface = testSurface.translate(0, -1, 0);
                 }
                 int distance = bottomPoint.getY() - testSurface.getY();
-                Bukkit.broadcastMessage("distance: " + distance);
-                Bukkit.broadcastMessage("bottomY: " + bottomPoint.getY());
-                Bukkit.broadcastMessage("testsurfaceY: " + testSurface.getY());
                 if (distance > craft.getType().getHoverLimit()){
                     dy = -1;
                 }
@@ -230,22 +227,17 @@ public class TranslationTask extends AsyncTask {
         if (craft.getType().getUseGravity() && !craft.getSinking()){
             if (inclineCraft(oldHitBox)){
                 dy = 1;
-            } else if (!isOnGround(oldHitBox) && craft.getType().getCanHover()){/*
+            } else if (!isOnGround(oldHitBox) && craft.getType().getCanHover()){
                 MovecraftLocation midPoint = oldHitBox.getMidPoint();
                 int centreMinY = oldHitBox.getLocalMinY(midPoint.getX(), midPoint.getZ());
                 int groundY = centreMinY;
                 World w = craft.getW();
-                Bukkit.broadcastMessage("D Block below gy is: " + w.getBlockAt(midPoint.getX(), groundY - 1, midPoint.getZ()).getType().name());
                 while (w.getBlockAt(midPoint.getX(), groundY - 1, midPoint.getZ()).getType() == Material.AIR || craft.getType().getPassthroughBlocks().contains(w.getBlockAt(midPoint.getX(), groundY - 1, midPoint.getZ()).getType())){
                     groundY--;
-                    Bukkit.broadcastMessage("D groundY--: " + groundY);
                 }
-                Bukkit.broadcastMessage("D groundY: " + groundY);
-                Bukkit.broadcastMessage("D centreMinY: " + centreMinY);
-                Bukkit.broadcastMessage("D craft.getType().getHoverLimit(): " + craft.getType().getHoverLimit());
                 if (centreMinY - groundY > craft.getType().getHoverLimit()){
                     dy = -1;
-                }*/
+                }
             } else if (!isOnGround(oldHitBox)){
                 dy = -1;
             }
@@ -562,7 +554,6 @@ public class TranslationTask extends AsyncTask {
 
     private boolean inclineCraft(HashHitBox hitBox){
         if (isOnGround(hitBox) && dy < 0){
-            Bukkit.broadcastMessage("dy = 0");
             dy = 0;
         }
         HashHitBox collisionBox = new HashHitBox();
@@ -612,18 +603,15 @@ public class TranslationTask extends AsyncTask {
             Material testType = bottomLoc.translate(0, -1, 0).toBukkit(craft.getW()).getBlock().getType();
             //If the lowest part of the bottom locs touch the ground, return true anyways
             if (!testType.name().endsWith("AIR") && !craft.getType().getPassthroughBlocks().contains(testType)){
-                Bukkit.broadcastMessage("bottomLocsOnGround = true; obj = " + bottomLoc.toBukkit(craft.getW()));
                 bottomLocsOnGround = true;
             }
         }
         boolean translatedBottomLocsInAir = true;
         for (MovecraftLocation translatedBottomLoc : translatedBottomLocs){
-            MovecraftLocation beneath = translatedBottomLoc.translate(0, /*-1*/0, 0); //Temporary solution, makes beneath field absolutely unneeded
-            Material testType = beneath.toBukkit(craft.getW()).getBlock().getType();
+            Material testType = translatedBottomLoc.toBukkit(craft.getW()).getBlock().getType();
             if (bottomLocs.contains(beneath) || testType == Material.AIR || craft.getType().getPassthroughBlocks().contains(testType)){
                 continue;
             }
-            Bukkit.broadcastMessage("translatedBottomLocsInAir = false; obj = " + beneath.toBukkit(craft.getW()));
             translatedBottomLocsInAir = false;
             break;
         }
