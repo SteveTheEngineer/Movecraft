@@ -232,7 +232,7 @@ public class TranslationTask extends AsyncTask {
                 int centreMinY = oldHitBox.getLocalMinY(midPoint.getX(), midPoint.getZ());
                 int groundY = centreMinY;
                 World w = craft.getW();
-                while (w.getBlockAt(midPoint.getX(), groundY - 1, midPoint.getZ()).getType() == Material.AIR || craft.getType().getPassthroughBlocks().contains(w.getBlockAt(midPoint.getX(), groundY - 1, midPoint.getZ()).getType())){
+                while (w.getBlockAt(midPoint.getX(), groundY , midPoint.getZ()).getType() == Material.AIR || craft.getType().getPassthroughBlocks().contains(w.getBlockAt(midPoint.getX(), groundY, midPoint.getZ()).getType())){
                     groundY--;
                 }
                 if (centreMinY - groundY > craft.getType().getHoverLimit()){
