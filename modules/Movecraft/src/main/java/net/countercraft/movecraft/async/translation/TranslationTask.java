@@ -618,7 +618,7 @@ public class TranslationTask extends AsyncTask {
         }
         boolean translatedBottomLocsInAir = true;
         for (MovecraftLocation translatedBottomLoc : translatedBottomLocs){
-            MovecraftLocation beneath = translatedBottomLoc.translate(0, -1, 0);
+            MovecraftLocation beneath = translatedBottomLoc.translate(0, /*-1*/0, 0); //Temporary solution, makes beneath field absolutely unneeded
             Material testType = beneath.toBukkit(craft.getW()).getBlock().getType();
             if (bottomLocs.contains(beneath) || testType == Material.AIR || craft.getType().getPassthroughBlocks().contains(testType)){
                 continue;
