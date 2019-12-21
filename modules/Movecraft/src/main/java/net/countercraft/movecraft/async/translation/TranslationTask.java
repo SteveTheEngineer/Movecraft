@@ -583,7 +583,7 @@ public class TranslationTask extends AsyncTask {
         return false;
     }
 
-    private boolean isOnGround(HashHitBox hitBox){
+    private boolean isOnGround(HashHitBox hitBox){ //The problem is here
         MutableHitBox bottomLocs = new HashHitBox();
         MutableHitBox translatedBottomLocs = new HashHitBox();
         for (MovecraftLocation location : hitBox){
@@ -612,6 +612,7 @@ public class TranslationTask extends AsyncTask {
             Material testType = bottomLoc.translate(0, -1, 0).toBukkit(craft.getW()).getBlock().getType();
             //If the lowest part of the bottom locs touch the ground, return true anyways
             if (!testType.name().endsWith("AIR") && !craft.getType().getPassthroughBlocks().contains(testType)){
+                Bukkit.broadcastMessage("bottomLocsOnGround = true; obj = " + bottomLoc.toBukkit(craft.getW()));
                 bottomLocsOnGround = true;
             }
         }
@@ -622,6 +623,7 @@ public class TranslationTask extends AsyncTask {
             if (bottomLocs.contains(beneath) || testType == Material.AIR || craft.getType().getPassthroughBlocks().contains(testType)){
                 continue;
             }
+            Bukkit.broadcastMessage("translatedBottomLocsInAir = false; obj = " + beneath.toBukkit(craft.getW()));
             translatedBottomLocsInAir = false;
             break;
         }
