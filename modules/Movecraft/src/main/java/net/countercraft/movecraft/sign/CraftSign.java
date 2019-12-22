@@ -22,21 +22,70 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.Nullable;
 
 public final class CraftSign implements Listener{
 
     @EventHandler
     public void onSignChange(SignChangeEvent event){
-
-        if (CraftManager.getInstance().getCraftTypeFromString(event.getLine(0)) == null) {
+        if(CraftManager.getInstance().getCraftTypeFromString(event.getLine(0)) == null) {
             return;
         }
-        if (!Settings.RequireCreatePerm) {
-            return;
-        }
-        if (!event.getPlayer().hasPermission("movecraft." + ChatColor.stripColor(event.getLine(0)) + ".create")) {
+        if(Settings.RequireCreatePerm && !event.getPlayer().hasPermission("movecraft." + ChatColor.stripColor(event.getLine(0)) + ".create")) {
             event.getPlayer().sendMessage(I18nSupport.getInternationalisedString("Insufficient Permissions"));
             event.setCancelled(true);
+            return;
+        }
+
+        @Nullable BlockFace currentlyfacing;
+        try {
+            currentlyfacing = BlockFace.valueOf(event.getLine(1));
+        } catch(IllegalArgumentException | NullPointerException e) {
+            currentlyfacing = BlockFace.SELF;
+        }
+        if(currentlyfacing != BlockFace.NORTH && currentlyfacing != BlockFace.EAST && currentlyfacing != BlockFace.SOUTH && currentlyfacing != BlockFace.WEST) {
+            BlockFace newfacing = null;
+            if(event.getBlock().getType().name().endsWith("_WALL_SIGN")) {
+                newfacing = ((WallSign) event.getBlock().getBlockData()).getFacing().getOppositeFace();
+            }
+            else if(event.getBlock().getType().name().endsWith("_SIGN")) {
+                newfacing = ((org.bukkit.block.data.type.Sign) event.getBlock().getBlockData()).getRotation().getOppositeFace();
+                switch(newfacing) {
+                    case NORTH_NORTH_WEST:
+                    case NORTH_NORTH_EAST:
+                    case NORTH_EAST:
+                        newfacing = BlockFace.NORTH;
+                        break;
+                    case EAST_NORTH_EAST:
+                    case EAST_SOUTH_EAST:
+                    case SOUTH_EAST:
+                        newfacing = BlockFace.EAST;
+                        break;
+                    case SOUTH_SOUTH_EAST:
+                    case SOUTH_SOUTH_WEST:
+                    case SOUTH_WEST:
+                        newfacing = BlockFace.SOUTH;
+                        break;
+                    case WEST_SOUTH_WEST:
+                    case WEST_NORTH_WEST:
+                    case NORTH_WEST:
+                        newfacing = BlockFace.WEST;
+                    case NORTH:
+                    case EAST:
+                    case SOUTH:
+                    case WEST:
+                        break;
+                    default: // Should never happen
+                        newfacing = BlockFace.NORTH;
+                        break;
+                }
+            }
+            if(newfacing != null) {
+                event.setLine(1, newfacing.name());
+            }
+            else {
+                event.setLine(1, BlockFace.NORTH.name());
+            }
         }
     }
 

@@ -17,6 +17,40 @@
 
 package net.countercraft.movecraft;
 
+import org.bukkit.block.BlockFace;
+
 public enum Rotation {
-    CLOCKWISE, NONE, ANTICLOCKWISE
+    CLOCKWISE, NONE, ANTICLOCKWISE;
+
+    public BlockFace rotate4d(BlockFace in) {
+        if(this == CLOCKWISE) {
+            switch(in) {
+                case NORTH:
+                    return BlockFace.EAST;
+                case EAST:
+                    return BlockFace.SOUTH;
+                case SOUTH:
+                    return BlockFace.WEST;
+                case WEST:
+                    return BlockFace.NORTH;
+                default:
+                    return in;
+            }
+        } else if(this == ANTICLOCKWISE) {
+            switch(in) {
+                case NORTH:
+                    return BlockFace.WEST;
+                case WEST:
+                    return BlockFace.SOUTH;
+                case SOUTH:
+                    return BlockFace.EAST;
+                case EAST:
+                    return BlockFace.NORTH;
+                default:
+                    return in;
+            }
+        } else {
+            return in;
+        }
+    }
 }

@@ -3,6 +3,7 @@ package net.countercraft.movecraft.mapUpdater.update;
 import net.countercraft.movecraft.MovecraftLocation;
 import net.countercraft.movecraft.craft.Craft;
 import org.bukkit.Bukkit;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Damageable;
 import org.bukkit.entity.LivingEntity;
 
@@ -36,6 +37,9 @@ public class EntityDamageCommand extends UpdateCommand {
                 if(!craft.getHitBox().contains(e.getLocation().getBlockX(), e.getLocation().getBlockY(), e.getLocation().getBlockZ())) { // Another check
                     return;
                 }
+                if(!e.getLocation().getBlock().getType().isSolid()) {
+                    return;
+                }
                 foundEntities.add((Damageable) e);
             });
             craft.getW().getNearbyEntities(location.translate(0, -1, 0).toBukkit(craft.getW()), 0.5, 0.5, 0.5, e -> e instanceof Damageable).forEach(e -> {
@@ -48,13 +52,17 @@ public class EntityDamageCommand extends UpdateCommand {
                 if(!craft.getHitBox().contains(e.getLocation().getBlockX(), e.getLocation().getBlockY() + 1, e.getLocation().getBlockZ())) { // Another check
                     return;
                 }
+                if(!e.getLocation().getBlock().getRelative(BlockFace.UP).getType().isSolid()) {
+                    return;
+                }
                 if(!foundEntities.contains(e)) {
                     foundEntities.add((Damageable) e);
                 }
             });
         }
         foundEntities.forEach(ent -> {
-            ent.damage(craft.getHitBox().size() / 100.0F);
+            ent.damage(craft.getMass() / 100.0F);
+            Bukkit.broadcastMessage(ent.getLocation().getBlockX() + ", " + ent.getLocation().getBlockY() + ", " + ent.getLocation().getBlockZ());
         });
     }
 

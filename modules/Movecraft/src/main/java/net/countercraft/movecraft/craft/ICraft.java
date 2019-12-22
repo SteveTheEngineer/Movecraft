@@ -7,9 +7,11 @@ import net.countercraft.movecraft.async.detection.DetectionTask;
 import net.countercraft.movecraft.async.rotation.RotationTask;
 import net.countercraft.movecraft.async.translation.TranslationTask;
 import net.countercraft.movecraft.localisation.I18nSupport;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -29,6 +31,20 @@ public class ICraft extends Craft {
     @Override
     public void detect(Player player, Player notificationPlayer, MovecraftLocation startPoint) {
         this.setNotificationPlayer(notificationPlayer);
+        Block block = startPoint.toBukkit(w).getBlock();
+        if(block.getType().name().endsWith("_SIGN") && block.getState() instanceof Sign) {
+            Sign sign = (Sign) block.getState();
+            if(sign.getLine(0).equalsIgnoreCase(type.getCraftName())) {
+                final BlockFace currentlyfacing = BlockFace.valueOf(sign.getLine(1));
+                if(currentlyfacing == BlockFace.NORTH || currentlyfacing == BlockFace.EAST || currentlyfacing == BlockFace.SOUTH || currentlyfacing == BlockFace.WEST) {
+                    setDirection(currentlyfacing);
+                } else {
+                    setDirection(player.getFacing());
+                }
+            }
+        } else {
+            setDirection(player.getFacing());
+        }
         Movecraft.getInstance().getAsyncManager().submitTask(new DetectionTask(this, startPoint, player), this);
     }
 
@@ -49,6 +65,56 @@ public class ICraft extends Craft {
         if (!this.getType().allowVerticalTakeoffAndLanding() && dy != 0 && !this.getSinking()) {
             if (dx == 0 && dz == 0) {
                 return;
+            }
+        }
+        boolean skipChecks = false;
+        if(this.getType().getAllowMovementDiagonal()) { // Experimental
+            if(dx != 0 && dz != 0) {
+                skipChecks = true;
+            }
+        }
+        if(!skipChecks && !this.getType().getAllowMovementForward()) {
+            if (this.getDirection() == BlockFace.NORTH && dz < 0) {
+                dz = 0;
+            } else if (this.getDirection() == BlockFace.EAST && dx > 0) {
+                dx = 0;
+            } else if (this.getDirection() == BlockFace.SOUTH && dz > 0) {
+                dz = 0;
+            } else if (this.getDirection() == BlockFace.WEST && dx < 0) {
+                dx = 0;
+            }
+        }
+        if(!skipChecks && !this.getType().getAllowMovementBackward()) {
+            if(this.getDirection() == BlockFace.NORTH && dz > 0) {
+                dz = 0;
+            } else if(this.getDirection() == BlockFace.EAST && dx < 0) {
+                dx = 0;
+            } else if(this.getDirection() == BlockFace.SOUTH && dz < 0) {
+                dz = 0;
+            } else if(this.getDirection() == BlockFace.WEST && dx > 0) {
+                dx = 0;
+            }
+        }
+        if(!skipChecks && !this.getType().getAllowMovementLeft()) {
+            if(this.getDirection() == BlockFace.NORTH && dx < 0) {
+                dx = 0;
+            } else if(this.getDirection() == BlockFace.EAST && dz < 0) {
+                dz = 0;
+            } else if(this.getDirection() == BlockFace.SOUTH && dx > 0) {
+                dx = 0;
+            } else if(this.getDirection() == BlockFace.WEST && dz > 0) {
+                dz = 0;
+            }
+        }
+        if(!skipChecks && !this.getType().getAllowMovementRight()) {
+            if(this.getDirection() == BlockFace.NORTH && dx > 0) {
+                dx = 0;
+            } else if(this.getDirection() == BlockFace.EAST && dz > 0) {
+                dz = 0;
+            } else if(this.getDirection() == BlockFace.SOUTH && dx < 0) {
+                dx = 0;
+            } else if(this.getDirection() == BlockFace.WEST && dz < 0) {
+                dz = 0;
             }
         }
 

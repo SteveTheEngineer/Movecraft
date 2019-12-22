@@ -216,7 +216,7 @@ public class RotationTask extends AsyncTask {
 
 
         if (getCraft().getCruising()) {
-            if (rotation == Rotation.ANTICLOCKWISE) {
+            /*if (rotation == Rotation.ANTICLOCKWISE) {
                 // ship faces west
                 switch (getCraft().getCruiseDirection()) {
                     case WEST:
@@ -254,7 +254,8 @@ public class RotationTask extends AsyncTask {
                         getCraft().setCruiseDirection(BlockFace.WEST);
                         break;
                 }
-            }
+            }*/
+            craft.setCruiseDirection(rotation.rotate4d(craft.getCruiseDirection()));
         }
 
         // if you rotated a subcraft, update the parent with the new blocks

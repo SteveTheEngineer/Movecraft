@@ -70,7 +70,7 @@ public class EntityTranslateUpdateCommand extends UpdateCommand {
             Location playerLoc = entity.getLocation();
             if (!(entity instanceof Player) || yaw > .01 || pitch > .01 || yaw < -.01 || pitch < -.01 || Settings.IsPre1_9) {
                 entity.teleport(new Location(entity.getWorld(), x + playerLoc.getX(),y + playerLoc.getY(),z + playerLoc.getZ(),yaw + playerLoc.getYaw(),pitch + playerLoc.getPitch()));
-                return;
+                continue;
             }
             //Movecraft.getInstance().getWorldHandler().addPlayerLocation((Player) entity,x,y,z,yaw,pitch);
             TeleportUtils.teleport((Player) entity, new Location(entity.getWorld(), playerLoc.getX() + x, playerLoc.getY() + y, playerLoc.getZ() + z));
@@ -116,7 +116,7 @@ public class EntityTranslateUpdateCommand extends UpdateCommand {
                 continue;
             }
             Location entityLocation = entity.getLocation();
-            if(craft.getType().getOnlyMoveEntitiesOnBlocks() && (entityLocation.getBlock().getRelative(BlockFace.DOWN).getType() == Material.AIR || !oldHitBox.contains(entityLocation.getBlockX(), entityLocation.getBlockY() - 1, entityLocation.getBlockZ()))) { // EXPERIMENTAL
+            if(craft.getType().getOnlyMoveEntitiesOnBlocks() && (/*!entityLocation.getBlock().getRelative(BlockFace.DOWN).getType().isSolid()|| */!oldHitBox.contains(entityLocation.getBlockX(), entityLocation.getBlockY() - 1, entityLocation.getBlockZ()))) { // EXPERIMENTAL
                 continue;
             }
             toMove.add(entity);

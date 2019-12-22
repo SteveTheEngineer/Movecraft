@@ -42,6 +42,7 @@ public class PlayerListener implements Listener {
     private final Map<Craft, Long> timeToReleaseAfter = new WeakHashMap<>();
 
     private String checkCraftBorders(Craft craft) {
+
         String ret = "";
         final BlockContainer ALLOWED_BLOCKS = craft.getType().getAllowedBlocks();
         final BlockContainer FORBIDDEN_BLOCKS = craft.getType().getForbiddenBlocks();

@@ -17,6 +17,8 @@
 
 package net.countercraft.movecraft.craft;
 
+import com.google.common.collect.ImmutableCollection;
+import com.google.common.collect.ImmutableSet;
 import net.countercraft.movecraft.MovecraftLocation;
 import net.countercraft.movecraft.Rotation;
 import net.countercraft.movecraft.config.Settings;
@@ -28,16 +30,15 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
@@ -76,6 +77,7 @@ public abstract class Craft {
     @NotNull private final Map<MovecraftLocation,Material> phaseBlocks = new HashMap<>();
     @NotNull private final HashMap<UUID, Location> crewSigns = new HashMap<>();
     @NotNull private String name = "";
+    @NotNull private BlockFace direction = BlockFace.NORTH;
 
     public Craft(@NotNull CraftType type, @NotNull World world) {
         this.type = type;
@@ -130,6 +132,21 @@ public abstract class Craft {
     }
 
     public abstract void detect(Player player, Player notificationPlayer, MovecraftLocation startPoint);
+
+    @NotNull
+    public BlockFace getDirection() {
+        return direction;
+    }
+
+    public void setDirection(@NotNull BlockFace direction) {
+        this.direction = direction;
+        findSigns().forEach(sign -> {
+            if(sign.getLine(0).equalsIgnoreCase(type.getCraftName())) {
+                sign.setLine(1, direction.name());
+                sign.update();
+            }
+        });
+    }
 
     public abstract void translate(int dx, int dy, int dz);
 
@@ -272,6 +289,10 @@ public abstract class Craft {
 
     public void setOrigBlockCount(int origBlockCount) {
         this.origBlockCount = origBlockCount;
+    }
+
+    public float getMass() {
+        return hitBox.size() * type.getMassMultiplier();
     }
 
     @Nullable
@@ -439,6 +460,16 @@ public abstract class Craft {
         return repairing;
     }
 
+    public Set<Sign> findSigns() {
+        final Set<Sign> signs = new HashSet<>();
+        for(MovecraftLocation location : hitBox) {
+            BlockState block = location.toBukkit(w).getBlock().getState();
+            if(block.getType().name().endsWith("_SIGN") && block instanceof Sign) {
+                signs.add((Sign) block);
+            }
+        }
+        return signs;
+    }
 
     public abstract void resetSigns(@NotNull final Sign clicked);
 }

@@ -62,6 +62,11 @@ final public class CraftType {
     private final boolean focusedExplosion;
     private final boolean mustBeSubcraft;
     private final boolean keepMovingOnSink;
+    private final boolean allowMovementForward;
+    private final boolean allowMovementBackward;
+    private final boolean allowMovementLeft;
+    private final boolean allowMovementRight;
+    private final boolean allowMovementDiagonal;
     private final int maxSize;
     private final int minSize;
     private final int minHeightLimit;
@@ -105,6 +110,26 @@ final public class CraftType {
     @NotNull private final Map<PotionEffect, Integer> potionEffectDelays = Collections.emptyMap();
     @NotNull private final Set<Material> forbiddenHoverOverBlocks;
 
+    public boolean getAllowMovementForward() {
+        return allowMovementForward;
+    }
+
+    public boolean getAllowMovementBackward() {
+        return allowMovementBackward;
+    }
+
+    public boolean getAllowMovementLeft() {
+        return allowMovementLeft;
+    }
+
+    public boolean getAllowMovementRight() {
+        return allowMovementRight;
+    }
+
+    public boolean getAllowMovementDiagonal() {
+        return allowMovementDiagonal;
+    }
+
     @SuppressWarnings("unchecked")
     public CraftType(File f) throws CraftTypeException{
         final Map data;
@@ -119,200 +144,205 @@ final public class CraftType {
 
 
         try {
-        //Required craft flags
-        craftName = (String) data.get("name");
-        maxSize = integerFromObject(data.get("maxSize"));
-        minSize = integerFromObject(data.get("minSize"));
-        allowedBlocks = new BlockContainer(data.get("allowedBlocks"));
+            //Required craft flags
+            craftName = (String) data.get("name");
+            maxSize = integerFromObject(data.get("maxSize"));
+            minSize = integerFromObject(data.get("minSize"));
+            allowedBlocks = new BlockContainer(data.get("allowedBlocks"));
 
-        forbiddenBlocks = data.containsKey("forbiddenBlocks") ? new BlockContainer(data.get("forbiddenBlocks")) : new BlockContainer();;
-        forbiddenSignStrings = stringListFromObject(data.get("forbiddenSignStrings"));
-        tickCooldown = (int) Math.ceil(20 / (doubleFromObject(data.get("speed"))));
-        flyBlocks = new BlockLimitManager(data.get("flyblocks"));
+            forbiddenBlocks = data.containsKey("forbiddenBlocks") ? new BlockContainer(data.get("forbiddenBlocks")) : new BlockContainer();;
+            forbiddenSignStrings = stringListFromObject(data.get("forbiddenSignStrings"));
+            tickCooldown = (int) Math.ceil(20 / (doubleFromObject(data.get("speed"))));
+            flyBlocks = new BlockLimitManager(data.get("flyblocks"));
 
-        //Optional craft flags
-        blockedByWater = (boolean) (data.containsKey("canFly") ? data.get("canFly") : data.getOrDefault("blockedByWater", true));
-        requireWaterContact = (boolean) data.getOrDefault("requireWaterContact", false);
-        tryNudge = (boolean) data.getOrDefault("tryNudge", false);
-        cruiseTickCooldown = (int) Math.ceil(20 / (doubleFromObject(data.getOrDefault("cruiseSpeed", tickCooldown))));
-        moveBlocks = new BlockLimitManager(data.getOrDefault("moveblocks", new HashMap<>()));
-        canCruise = (boolean) data.getOrDefault("canCruise", false);
-        canTeleport = (boolean) data.getOrDefault("canTeleport", false);
-        canBeNamed = (boolean) data.getOrDefault("canBeNamed", true);
-        cruiseOnPilot = (boolean) data.getOrDefault("cruiseOnPilot", false);
-        cruiseOnPilotVertMove = integerFromObject(data.getOrDefault("cruiseOnPilotVertMove", 0));
-        allowVerticalMovement = (boolean) data.getOrDefault("allowVerticalMovement", true);
-        rotateAtMidpoint = (boolean) data.getOrDefault("rotateAtMidpoint", false);
-        allowHorizontalMovement = (boolean) data.getOrDefault("allowHorizontalMovement", true);
-        allowRemoteSign = (boolean) data.getOrDefault("allowRemoteSign", true);
-        allowCannonDirectorSign = (boolean) data.getOrDefault("allowCannonDirectorSign", true);
-        allowAADirectorSign = (boolean) data.getOrDefault("allowAADirectorSign", true);
-        canStaticMove = (boolean) data.getOrDefault("canStaticMove", false);
-        maxStaticMove = integerFromObject(data.getOrDefault("maxStaticMove", 10000));
-        cruiseSkipBlocks = integerFromObject(data.getOrDefault("cruiseSkipBlocks", 0));
-        vertCruiseSkipBlocks = integerFromObject(data.getOrDefault("vertCruiseSkipBlocks", cruiseSkipBlocks));
-        halfSpeedUnderwater = (boolean) data.getOrDefault("halfSpeedUnderwater", false);
-        focusedExplosion = (boolean) data.getOrDefault("focusedExplosion", false);
-        mustBeSubcraft = (boolean) data.getOrDefault("mustBeSubcraft", false);
-        staticWaterLevel = integerFromObject(data.getOrDefault("staticWaterLevel", 0));
-        fuelBurnRate = doubleFromObject(data.getOrDefault("fuelBurnRate", 0d));
-        sinkPercent = doubleFromObject(data.getOrDefault("sinkPercent", 0d));
-        overallSinkPercent = doubleFromObject(data.getOrDefault("overallSinkPercent", 0d));
-        detectionMultiplier = doubleFromObject(data.getOrDefault("detectionMultiplier", 0d));
-        underwaterDetectionMultiplier = doubleFromObject(data.getOrDefault("underwaterDetectionMultiplier", detectionMultiplier));
-        sinkRateTicks = data.containsKey("sinkSpeed") ? (int) Math.ceil(20 / (doubleFromObject(data.get("sinkSpeed")))) : integerFromObject(data.getOrDefault("sinkTickRate", 0));
-        keepMovingOnSink = (Boolean) data.getOrDefault("keepMovingOnSink", false);
-        smokeOnSink = integerFromObject(data.getOrDefault("smokeOnSink", 0));
-        explodeOnCrash = floatFromObject(data.getOrDefault("explodeOnCrash", 0F));
-        collisionExplosion = floatFromObject(data.getOrDefault("collisionExplosion", 0F));
-        minHeightLimit = Math.max(0, integerFromObject(data.getOrDefault("minHeightLimit", 0)));
-        int value = integerFromObject(data.getOrDefault("maxHeightLimit", 254));
-        if (value <= minHeightLimit) {
-            value = 255;
-        }
-        maxHeightLimit = value;
-        maxHeightAboveGround = integerFromObject(data.getOrDefault("maxHeightAboveGround", -1));
-        canDirectControl = (boolean) data.getOrDefault("canDirectControl", true);
-        canHover = (boolean) data.getOrDefault("canHover", false);
-        canHoverOverWater = (boolean) data.getOrDefault("canHoverOverWater", true);
-        moveEntities = (boolean) data.getOrDefault("moveEntities", true);
-        onlyMovePlayers = (boolean) data.getOrDefault("onlyMovePlayers", true);
-            damageEntitiesAtHead = (boolean) data.getOrDefault("damageEntitiesAtHead", false);
-            damageEntitiesAtLegs = (boolean) data.getOrDefault("damageEntitiesAtLegs", true);
-        onlyMoveEntitiesOnBlocks = (boolean) data.getOrDefault("onlyMoveEntitiesOnBlocks", false);
-        useGravity = (boolean) data.getOrDefault("useGravity", false);
-        hoverLimit = Math.max(0, integerFromObject(data.getOrDefault("hoverLimit", 0)));
-        massMultiplier = Math.max(0, floatFromObject(data.getOrDefault("massMuliplier", 1)));
-        harvesterBladeDamage = Math.max(0, floatFromObject(data.getOrDefault("harvesterBladeDamage", 0)));
-        harvestBlocks = new ArrayList<>();
-        harvesterBladeBlocks = new ArrayList<>();
-        if (data.containsKey("harvestBlocks")) {
-            ArrayList objList = (ArrayList) data.get("harvestBlocks");
-            for (Object i : objList) {
-                if (i instanceof String) {
-                    String str = (String) i;
-                    if (str.startsWith("ALL_")) {
-                        str = str.replace("ALL_", "");
-                        for (Material type : Material.values()) {
-
-                        }
-                    }
-                    Material mat = Material.getMaterial((String) i);
-                    harvestBlocks.add(mat);
-                } else {
-                    Material mat = Material.getMaterial((Integer) i);
-                    harvestBlocks.add(mat);
-                }
-
+            //Optional craft flags
+            blockedByWater = (boolean) (data.containsKey("canFly") ? data.get("canFly") : data.getOrDefault("blockedByWater", true));
+            requireWaterContact = (boolean) data.getOrDefault("requireWaterContact", false);
+            tryNudge = (boolean) data.getOrDefault("tryNudge", false);
+            cruiseTickCooldown = (int) Math.ceil(20 / (doubleFromObject(data.getOrDefault("cruiseSpeed", tickCooldown))));
+            moveBlocks = new BlockLimitManager(data.getOrDefault("moveblocks", new HashMap<>()));
+            canCruise = (boolean) data.getOrDefault("canCruise", false);
+            canTeleport = (boolean) data.getOrDefault("canTeleport", false);
+            canBeNamed = (boolean) data.getOrDefault("canBeNamed", true);
+            cruiseOnPilot = (boolean) data.getOrDefault("cruiseOnPilot", false);
+            cruiseOnPilotVertMove = integerFromObject(data.getOrDefault("cruiseOnPilotVertMove", 0));
+            allowVerticalMovement = (boolean) data.getOrDefault("allowVerticalMovement", true);
+            rotateAtMidpoint = (boolean) data.getOrDefault("rotateAtMidpoint", false);
+            allowHorizontalMovement = (boolean) data.getOrDefault("allowHorizontalMovement", true);
+            allowRemoteSign = (boolean) data.getOrDefault("allowRemoteSign", true);
+            allowCannonDirectorSign = (boolean) data.getOrDefault("allowCannonDirectorSign", true);
+            allowAADirectorSign = (boolean) data.getOrDefault("allowAADirectorSign", true);
+            canStaticMove = (boolean) data.getOrDefault("canStaticMove", false);
+            maxStaticMove = integerFromObject(data.getOrDefault("maxStaticMove", 10000));
+            cruiseSkipBlocks = integerFromObject(data.getOrDefault("cruiseSkipBlocks", 0));
+            vertCruiseSkipBlocks = integerFromObject(data.getOrDefault("vertCruiseSkipBlocks", cruiseSkipBlocks));
+            halfSpeedUnderwater = (boolean) data.getOrDefault("halfSpeedUnderwater", false);
+            focusedExplosion = (boolean) data.getOrDefault("focusedExplosion", false);
+            mustBeSubcraft = (boolean) data.getOrDefault("mustBeSubcraft", false);
+            staticWaterLevel = integerFromObject(data.getOrDefault("staticWaterLevel", 0));
+            fuelBurnRate = doubleFromObject(data.getOrDefault("fuelBurnRate", 0d));
+            sinkPercent = doubleFromObject(data.getOrDefault("sinkPercent", 0d));
+            overallSinkPercent = doubleFromObject(data.getOrDefault("overallSinkPercent", 0d));
+            detectionMultiplier = doubleFromObject(data.getOrDefault("detectionMultiplier", 0d));
+            underwaterDetectionMultiplier = doubleFromObject(data.getOrDefault("underwaterDetectionMultiplier", detectionMultiplier));
+            sinkRateTicks = data.containsKey("sinkSpeed") ? (int) Math.ceil(20 / (doubleFromObject(data.get("sinkSpeed")))) : integerFromObject(data.getOrDefault("sinkTickRate", 0));
+            keepMovingOnSink = (Boolean) data.getOrDefault("keepMovingOnSink", false);
+            allowMovementForward = (Boolean) data.getOrDefault("allowMovementForward", true);
+            allowMovementBackward = (Boolean) data.getOrDefault("allowMovementBackward", true);
+            allowMovementLeft = (Boolean) data.getOrDefault("allowMovementLeft", true);
+            allowMovementRight = (Boolean) data.getOrDefault("allowMovementRight", true);
+            allowMovementDiagonal = (Boolean) data.getOrDefault("allowMovementDiagonal", true);
+            smokeOnSink = integerFromObject(data.getOrDefault("smokeOnSink", 0));
+            explodeOnCrash = floatFromObject(data.getOrDefault("explodeOnCrash", 0F));
+            collisionExplosion = floatFromObject(data.getOrDefault("collisionExplosion", 0F));
+            minHeightLimit = Math.max(0, integerFromObject(data.getOrDefault("minHeightLimit", 0)));
+            int value = integerFromObject(data.getOrDefault("maxHeightLimit", 254));
+            if (value <= minHeightLimit) {
+                value = 255;
             }
-        }
-        if (data.containsKey("harvesterBladeBlocks")) {
-                ArrayList objList = (ArrayList) data.get("harvesterBladeBlocks");
+            maxHeightLimit = value;
+            maxHeightAboveGround = integerFromObject(data.getOrDefault("maxHeightAboveGround", -1));
+            canDirectControl = (boolean) data.getOrDefault("canDirectControl", true);
+            canHover = (boolean) data.getOrDefault("canHover", false);
+            canHoverOverWater = (boolean) data.getOrDefault("canHoverOverWater", true);
+            moveEntities = (boolean) data.getOrDefault("moveEntities", true);
+            onlyMovePlayers = (boolean) data.getOrDefault("onlyMovePlayers", true);
+                damageEntitiesAtHead = (boolean) data.getOrDefault("damageEntitiesAtHead", false);
+                damageEntitiesAtLegs = (boolean) data.getOrDefault("damageEntitiesAtLegs", true);
+            onlyMoveEntitiesOnBlocks = (boolean) data.getOrDefault("onlyMoveEntitiesOnBlocks", false);
+            useGravity = (boolean) data.getOrDefault("useGravity", false);
+            hoverLimit = Math.max(0, integerFromObject(data.getOrDefault("hoverLimit", 0)));
+            massMultiplier = Math.max(0, floatFromObject(data.getOrDefault("massMuliplier", 1)));
+            harvesterBladeDamage = Math.max(0, floatFromObject(data.getOrDefault("harvesterBladeDamage", 0)));
+            harvestBlocks = new ArrayList<>();
+            harvesterBladeBlocks = new ArrayList<>();
+            if (data.containsKey("harvestBlocks")) {
+                ArrayList objList = (ArrayList) data.get("harvestBlocks");
                 for (Object i : objList) {
                     if (i instanceof String) {
                         String str = (String) i;
-                        str = str.toUpperCase();
-                        if (str.startsWith("ALL_")){
-                            for (Material type : Material.values()){
-                                if (!type.name().endsWith(str.replace("ALL_", "_"))){
-                                    continue;
-                                }
-                                harvesterBladeBlocks.add(type);
+                        if (str.startsWith("ALL_")) {
+                            str = str.replace("ALL_", "");
+                            for (Material type : Material.values()) {
+
                             }
+                        }
+                        Material mat = Material.getMaterial((String) i);
+                        harvestBlocks.add(mat);
+                    } else {
+                        Material mat = Material.getMaterial((Integer) i);
+                        harvestBlocks.add(mat);
+                    }
+
+                }
+            }
+            if (data.containsKey("harvesterBladeBlocks")) {
+                    ArrayList objList = (ArrayList) data.get("harvesterBladeBlocks");
+                    for (Object i : objList) {
+                        if (i instanceof String) {
+                            String str = (String) i;
+                            str = str.toUpperCase();
+                            if (str.startsWith("ALL_")){
+                                for (Material type : Material.values()){
+                                    if (!type.name().endsWith(str.replace("ALL_", "_"))){
+                                        continue;
+                                    }
+                                    harvesterBladeBlocks.add(type);
+                                }
+                            } else {
+                                Material mat = Material.getMaterial(str);
+                                harvesterBladeBlocks.add(mat);
+                            }
+
                         } else {
-                            Material mat = Material.getMaterial(str);
+                            Material mat = Material.getMaterial((Integer) i);
                             harvesterBladeBlocks.add(mat);
                         }
-
+                    }
+            }
+                passthroughBlocks = new HashSet<>();
+                if (data.containsKey("passthroughBlocks")) {
+                    ArrayList objList = (ArrayList) data.get("passthroughBlocks");
+                    for (Object i : objList) {
+                        if (i instanceof String) {
+                            Material mat = Material.getMaterial(((String) i).toUpperCase());
+                            passthroughBlocks.add(mat);
+                        } else {
+                            Material mat = Material.getMaterial((Integer) i);
+                            passthroughBlocks.add(mat);
+                        }
+                    }
+                }
+                if (!blockedByWater) {
+                    passthroughBlocks.add(Material.WATER);
+                    if (Settings.IsLegacy) {
+                        passthroughBlocks.add(LegacyUtils.STATIONARY_WATER);
                     } else {
-                        Material mat = Material.getMaterial((Integer) i);
-                        harvesterBladeBlocks.add(mat);
+                        passthroughBlocks.add(Material.getMaterial("BUBBLE_COLUMN"));
+                    }
+
+                }
+
+
+                forbiddenHoverOverBlocks = new HashSet<>();
+                if (data.containsKey("forbiddenHoverOverBlocks")){
+                    final ArrayList objList = (ArrayList) data.get("forbiddenHoverOverBlocks");
+                    for (Object i : objList){
+                        if (i instanceof Integer){
+                            forbiddenHoverOverBlocks.add(Material.getMaterial((int) i));
+                        } else if (i instanceof String){
+                            forbiddenHoverOverBlocks.add(Material.getMaterial(((String) i).toUpperCase()));
+                        }
                     }
                 }
-        }
-            passthroughBlocks = new HashSet<>();
-            if (data.containsKey("passthroughBlocks")) {
-                ArrayList objList = (ArrayList) data.get("passthroughBlocks");
-                for (Object i : objList) {
-                    if (i instanceof String) {
-                        Material mat = Material.getMaterial(((String) i).toUpperCase());
-                        passthroughBlocks.add(mat);
+                if (!canHoverOverWater){
+                    forbiddenHoverOverBlocks.add(Material.WATER);
+                    if (Settings.IsLegacy){
+                        forbiddenHoverOverBlocks.add(Material.STATIONARY_WATER);
                     } else {
-                        Material mat = Material.getMaterial((Integer) i);
-                        passthroughBlocks.add(mat);
+                        forbiddenHoverOverBlocks.add(Material.getMaterial("BUBBLE_COLUMN"));
+                    }
+
+                }
+                dynamicFlyBlocks = new HashSet<>();
+                if (data.containsKey("dynamicFlyBlocks")) {
+                    ArrayList entries = (ArrayList) data.get("dynamicFlyBlocks");
+                    for (Object o : entries) {
+                        if (o instanceof String) {
+                            String str = (String) o;
+                            str = str.toUpperCase();
+                            if (str.startsWith("ALL_")){
+                                str = str.replace("ALL_", "_");
+                                for (Material type : Material.values()){
+                                    if (!type.name().endsWith(str)){
+                                        continue;
+                                    }
+                                    dynamicFlyBlocks.add(type);
+                                }
+                                continue;
+                            }
+                            dynamicFlyBlocks.add(Material.getMaterial(str));
+                        } else {
+                            dynamicFlyBlocks.add(Material.getMaterial((Integer) o));
+                        }
                     }
                 }
-            }
-            if (!blockedByWater) {
-                passthroughBlocks.add(Material.WATER);
-                if (Settings.IsLegacy) {
-                    passthroughBlocks.add(LegacyUtils.STATIONARY_WATER);
-                } else {
-                    passthroughBlocks.add(Material.getMaterial("BUBBLE_COLUMN"));
-                }
-
-            }
-
-
-            forbiddenHoverOverBlocks = new HashSet<>();
-            if (data.containsKey("forbiddenHoverOverBlocks")){
-                final ArrayList objList = (ArrayList) data.get("forbiddenHoverOverBlocks");
-                for (Object i : objList){
-                    if (i instanceof Integer){
-                        forbiddenHoverOverBlocks.add(Material.getMaterial((int) i));
-                    } else if (i instanceof String){
-                        forbiddenHoverOverBlocks.add(Material.getMaterial(((String) i).toUpperCase()));
-                    }
-                }
-            }
+                maxTravelDistance = data.containsKey("maxTravelDistance") ? (int) data.get("maxTravelDistance") : 500;
+                effectRange = data.containsKey("effectRange") ? integerFromObject(data.get("effectRange")) : 0;
             if (!canHoverOverWater){
                 forbiddenHoverOverBlocks.add(Material.WATER);
-                if (Settings.IsLegacy){
-                    forbiddenHoverOverBlocks.add(Material.STATIONARY_WATER);
+                if (Settings.IsLegacy) {
+                    forbiddenHoverOverBlocks.add(LegacyUtils.STATIONARY_WATER);
                 } else {
                     forbiddenHoverOverBlocks.add(Material.getMaterial("BUBBLE_COLUMN"));
                 }
 
             }
-            dynamicFlyBlocks = new HashSet<>();
-            if (data.containsKey("dynamicFlyBlocks")) {
-                ArrayList entries = (ArrayList) data.get("dynamicFlyBlocks");
-                for (Object o : entries) {
-                    if (o instanceof String) {
-                        String str = (String) o;
-                        str = str.toUpperCase();
-                        if (str.startsWith("ALL_")){
-                            str = str.replace("ALL_", "_");
-                            for (Material type : Material.values()){
-                                if (!type.name().endsWith(str)){
-                                    continue;
-                                }
-                                dynamicFlyBlocks.add(type);
-                            }
-                            continue;
-                        }
-                        dynamicFlyBlocks.add(Material.getMaterial(str));
-                    } else {
-                        dynamicFlyBlocks.add(Material.getMaterial((Integer) o));
-                    }
-                }
-            }
-            maxTravelDistance = data.containsKey("maxTravelDistance") ? (int) data.get("maxTravelDistance") : 500;
-            effectRange = data.containsKey("effectRange") ? integerFromObject(data.get("effectRange")) : 0;
-        if (!canHoverOverWater){
-            forbiddenHoverOverBlocks.add(Material.WATER);
-            if (Settings.IsLegacy) {
-                forbiddenHoverOverBlocks.add(LegacyUtils.STATIONARY_WATER);
-            } else {
-                forbiddenHoverOverBlocks.add(Material.getMaterial("BUBBLE_COLUMN"));
-            }
-
-        }
-            potionEffectsToApply = data.containsKey("potionEffectsToApply") ? effectListFromObject(data.get("potionEffectsToApply")) : Collections.emptyMap();
-            allowVerticalTakeoffAndLanding = (boolean) data.getOrDefault("allowVerticalTakeoffAndLanding", true);
-            dynamicLagSpeedFactor = doubleFromObject(data.getOrDefault("dynamicLagSpeedFactor", 0d));
-            dynamicFlyBlockSpeedFactor = doubleFromObject(data.getOrDefault("dynamicFlyBlockSpeedFactor", 0d));
-            chestPenalty = doubleFromObject(data.getOrDefault("chestPenalty", 0));
+                potionEffectsToApply = data.containsKey("potionEffectsToApply") ? effectListFromObject(data.get("potionEffectsToApply")) : Collections.emptyMap();
+                allowVerticalTakeoffAndLanding = (boolean) data.getOrDefault("allowVerticalTakeoffAndLanding", true);
+                dynamicLagSpeedFactor = doubleFromObject(data.getOrDefault("dynamicLagSpeedFactor", 0d));
+                dynamicFlyBlockSpeedFactor = doubleFromObject(data.getOrDefault("dynamicFlyBlockSpeedFactor", 0d));
+                chestPenalty = doubleFromObject(data.getOrDefault("chestPenalty", 0));
         } catch (Exception e){
             throw new CraftTypeException("Craft file " + f.getName() + " is malformed", e);
         }

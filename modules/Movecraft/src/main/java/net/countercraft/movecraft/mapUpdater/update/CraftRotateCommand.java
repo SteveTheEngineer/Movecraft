@@ -185,6 +185,8 @@ public class CraftRotateCommand extends UpdateCommand {
             //translate the craft
 
             Movecraft.getInstance().getWorldHandler().rotateCraft(craft, originLocation, rotation);
+            craft.setDirection(rotation.rotate4d(craft.getDirection()));
+
             //trigger sign events
             for (MovecraftLocation location : craft.getHitBox()) {
                 Block block = location.toBukkit(craft.getW()).getBlock();
